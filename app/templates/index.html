@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Catshop — магазин котиков{% endblock %}
+
+{% block content %}
+  <div class="glass rounded-4 p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h1 class="display-6 fw-bold mb-2">Магазин продажи котиков</h1>
+        <p class="muted mb-0">
+          Выбирай котика, оставляй комментарии, добавляй друзей и пиши сообщения.
+          Проект учебный — для локальных тренингов.
+        </p>
+      </div>
+      <div class="col-lg-5">
+        {% if current_user.is_authenticated %}
+          <div class="glass rounded-4 p-3">
+            <div class="small muted">Вы вошли как</div>
+            <div class="h5 mb-2">{{ current_user.username }}</div>
+            <div class="d-flex gap-2">
+              <a class="btn btn-accent" href="{{ url_for('social.users_search_page') }}">Найти друзей</a>
+              <a class="btn btn-outline-light" href="{{ url_for('main.me') }}">Профиль</a>
+            </div>
+          </div>
+        {% else %}
+          <div class="glass rounded-4 p-3">
+            <div class="h5 mb-2">Войти в Catshop</div>
+            <div class="d-flex gap-2">
+              <a class="btn btn-accent" href="{{ url_for('auth.register') }}">Регистрация</a>
+              <a class="btn btn-outline-light" href="{{ url_for('auth.login') }}">Логин</a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for cat in cats %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card glass border-0 rounded-4 overflow-hidden cat-card h-100">
+          <img src="{{ cat.image_url }}" class="card-img-top" alt="{{ cat.name }}">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <h5 class="card-title mb-1">{{ cat.name }}</h5>
+              <span class="badge badge-soft">{{ cat.price }}$</span>
+            </div>
+            <p class="card-text muted small mb-3">{{ cat.description }}</p>
+            <a class="btn btn-sm btn-accent w-100" href="{{ url_for('main.cat_detail', cat_id=cat.id) }}">
+              Смотреть и комментировать
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+

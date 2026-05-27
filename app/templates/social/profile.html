@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.username }} — профиль{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="glass rounded-4 p-4 p-lg-5">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div>
+            <div class="small muted">Профиль</div>
+            <h1 class="h3 fw-bold mb-1">{{ profile_user.username }}</h1>
+            <div class="muted">{{ profile_user.email }}</div>
+          </div>
+          {% if not is_me %}
+            <div>
+              <button class="btn btn-sm {{ 'btn-outline-light' if is_friend else 'btn-accent' }}"
+                      type="button"
+                      data-friend-toggle
+                      data-username="{{ profile_user.username }}"
+                      data-is-friend="{{ '1' if is_friend else '0' }}">
+                {{ 'В друзьях' if is_friend else 'Добавить в друзья' }}
+              </button>
+            </div>
+          {% endif %}
+        </div>
+
+        <hr class="hr-soft my-4">
+        <div class="small muted">Друзья</div>
+        {% if friends %}
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            {% for f in friends %}
+              <a class="badge badge-soft text-decoration-none" href="{{ url_for('social.profile', username=f.username) }}">{{ f.username }}</a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="muted mt-2">Пока нет друзей.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="glass rounded-4 p-4 p-lg-5 mb-4">
+        <h2 class="h5 fw-semibold mb-3">Сообщения</h2>
+
+        {% if is_me %}
+          <div class="muted small mb-3">Входящие (последние 50)</div>
+          {% if inbox %}
+            <div class="vstack gap-2">
+              {% for m in inbox %}
+                <div class="p-3 rounded-3" style="background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="fw-semibold">От: {{ m.sender.username }}</div>
+                    <div class="small muted">{{ m.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+                  </div>
+                  <div class="mt-2">{{ m.content }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="muted">Пока нет сообщений.</div>
+          {% endif %}
+        {% else %}
+          <div class="muted small mb-3">Отправить сообщение пользователю {{ profile_user.username }}</div>
+          <form id="msgForm">
+            <input type="hidden" name="to" value="{{ profile_user.username }}">
+            <textarea class="form-control mb-2" name="content" rows="4" placeholder="Напиши сообщение..."></textarea>
+            <button class="btn btn-accent w-100" type="submit">Отправить</button>
+            <div class="small muted mt-2" id="msgStatus"></div>
+          </form>
+        {% endif %}
+      </div>
+
+      {% if is_me %}
+        <div class="glass rounded-4 p-4 mb-4">
+          <h2 class="h6 fw-semibold mb-2">Мои заказы (фейковые покупки)</h2>
+          {% if orders %}
+            <div class="vstack gap-2">
+              {% for o in orders %}
+                <div class="p-3 rounded-3" style="background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-semibold">Заказ #{{ o.id }}</div>
+                    <div class="small muted">{{ o.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+                  </div>
+                  {% if o.items %}
+                    <ul class="small mb-0">
+                      {% for it in o.items %}
+                        <li>{{ it.cat.name }} — {{ it.quantity }} шт, {{ it.price_at_moment }}$</li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <div class="small muted">Нет позиций (тестовый заказ).</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="muted small">Пока нет заказов. Купи какого-нибудь котика на странице кота.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="glass rounded-4 p-4">
+        <div class="muted small">
+          Поля сообщений, комментариев и заказов намеренно “реальные” — данные сохраняются в SQLite.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const btn = document.querySelector("[data-friend-toggle]");
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          const username = btn.getAttribute("data-username");
+          const isFriend = btn.getAttribute("data-is-friend") === "1";
+          btn.disabled = true;
+          try {
+            const url = isFriend ? "/social/api/friends/remove" : "/social/api/friends/add";
+            const body = new URLSearchParams({ username });
+            const res = await fetch(url, { method: "POST", headers: {"Content-Type":"application/x-www-form-urlencoded"}, body: body.toString() });
+            if (!res.ok) throw new Error("fail");
+            const data = await res.json();
+            btn.setAttribute("data-is-friend", data.is_friend ? "1" : "0");
+            btn.textContent = data.is_friend ? "В друзьях" : "Добавить в друзья";
+            btn.className = "btn btn-sm " + (data.is_friend ? "btn-outline-light" : "btn-accent");
+          } catch(e) {
+            btn.textContent = "Ошибка";
+          } finally {
+            setTimeout(()=>{ btn.disabled=false; }, 600);
+          }
+        });
+      }
+
+      const form = document.getElementById("msgForm");
+      if (form) {
+        const status = document.getElementById("msgStatus");
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          try {
+            const res = await fetch("/social/messages/send", { method: "POST", body: new URLSearchParams(fd) });
+            if (!res.ok) throw new Error("fail");
+            status.textContent = "Отправлено.";
+            form.querySelector("textarea[name=content]").value = "";
+          } catch (err) {
+            status.textContent = "Ошибка отправки.";
+          }
+        });
+      }
+    })();
+  </script>
+{% endblock %}
+

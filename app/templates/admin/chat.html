@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Чат — админка{% endblock %}
+
+{% block content %}
+  <div class="glass rounded-4 p-4 p-lg-5">
+    <h1 class="h4 fw-bold mb-3">Сообщения в общем чате</h1>
+    {% if messages %}
+      <div class="table-responsive">
+        <table class="table table-dark table-sm align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Пользователь</th>
+              <th>Текст</th>
+              <th>Когда</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in messages %}
+              <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.user.username }}</td>
+                <td style="max-width: 360px;">{{ m.content }}</td>
+                <td class="small muted">{{ m.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('admin.admin_chat_delete', msg_id=m.id) }}">
+                    <input type="hidden" name="token" value="{{ request.args.get('token') }}">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Удалить</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="muted">Сообщений нет.</div>
+    {% endif %}
+  </div>
+{% endblock %}
+

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Catshop{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg py-3">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">
+          <span class="brand-gradient">Catshop</span>
+          <span class="badge badge-soft ms-2">training</span>
+        </a>
+        <button class="navbar-toggler btn btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+          Меню
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="navbar-nav ms-auto gap-2">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Магазин</a></li>
+            {% if current_user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('chat.chat_page') }}">Чат</a></li>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('social.users_search_page') }}">Пользователи</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('main.me') }}">Профиль</a></li>
+              <li class="nav-item">
+                <form method="post" action="{{ url_for('auth.logout') }}">
+                  <button class="btn btn-sm btn-outline-light" type="submit">Выйти</button>
+                </form>
+              </li>
+            {% else %}
+              <li class="nav-item"><a class="btn btn-sm btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a></li>
+              <li class="nav-item"><a class="btn btn-sm btn-accent" href="{{ url_for('auth.register') }}">Регистрация</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container pb-5">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-3">
+            {% for category, msg in messages %}
+              <div class="alert alert-{{ category }} glass border-0 mb-2">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
+

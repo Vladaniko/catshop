@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Комментарии — админка{% endblock %}
+
+{% block content %}
+  <div class="glass rounded-4 p-4 p-lg-5">
+    <h1 class="h4 fw-bold mb-3">Комментарии</h1>
+    <p class="muted small mb-3">
+      Удаление требует токен. Передаётся через скрытое поле формы.
+    </p>
+
+    {% if comments %}
+      <div class="table-responsive">
+        <table class="table table-dark table-sm align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Пользователь</th>
+              <th>Кот</th>
+              <th>Текст</th>
+              <th>Когда</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in comments %}
+              <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.user.username }}</td>
+                <td>{{ c.cat.name }}</td>
+                <td style="max-width: 320px;">{{ c.content }}</td>
+                <td class="small muted">{{ c.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('admin.admin_comment_delete', comment_id=c.id) }}">
+                    <input type="hidden" name="token" value="{{ request.args.get('token') }}">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Удалить</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="muted">Комментариев нет.</div>
+    {% endif %}
+  </div>
+{% endblock %}
+

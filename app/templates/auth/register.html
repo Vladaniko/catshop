@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — Catshop{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <div class="glass rounded-4 p-4 p-lg-5">
+        <h1 class="h3 fw-bold mb-2">Регистрация</h1>
+        <p class="muted mb-4">Создай аккаунт, чтобы комментировать и добавлять друзей.</p>
+        <form method="post" action="{{ url_for('auth.register_post') }}">
+          <div class="mb-3">
+            <label class="form-label muted">Username</label>
+            <input class="form-control" name="username" placeholder="catlover" autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label muted">Email</label>
+            <input class="form-control" name="email" type="email" placeholder="you@mail.com" autocomplete="email">
+          </div>
+          <div class="mb-3">
+            <label class="form-label muted">Пароль</label>
+            <input class="form-control" name="password" type="password" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <button class="btn btn-accent w-100" type="submit">Создать аккаунт</button>
+        </form>
+        <hr class="hr-soft my-4">
+        <div class="muted small">
+          Уже есть аккаунт? <a class="link-light" href="{{ url_for('auth.login') }}">Логин</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Логин — Catshop{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <div class="glass rounded-4 p-4 p-lg-5">
+        <h1 class="h3 fw-bold mb-2">Войти</h1>
+        <p class="muted mb-4">Username или email + пароль.</p>
+        <form method="post" action="{{ url_for('auth.login_post') }}">
+          <div class="mb-3">
+            <label class="form-label muted">Username или email</label>
+            <input class="form-control" name="username_or_email" placeholder="karmi / karmi@mail.com" autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label muted">Пароль</label>
+            <input class="form-control" name="password" type="password" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <button class="btn btn-accent w-100" type="submit">Войти</button>
+        </form>
+        <hr class="hr-soft my-4">
+        <div class="muted small">
+          Нет аккаунта? <a class="link-light" href="{{ url_for('auth.register') }}">Регистрация</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

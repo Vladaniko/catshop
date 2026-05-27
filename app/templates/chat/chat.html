@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Чат — Catshop{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="glass rounded-4 p-4 p-lg-5 mb-4">
+        <h1 class="h4 fw-bold mb-3">Общий чат</h1>
+        <p class="muted small mb-3">
+          Простой общий чат. Сообщения сохраняются в SQLite. Можно использовать для тренировок и экспериментов с вводом.
+        </p>
+
+        <form method="post" action="{{ url_for('chat.chat_post') }}" class="mb-4">
+          <textarea name="content" rows="3" class="form-control mb-2" placeholder="Напиши сообщение..."></textarea>
+          <button class="btn btn-accent w-100" type="submit">Отправить</button>
+        </form>
+
+        <div class="muted small mb-2">Последние сообщения</div>
+        {% if messages %}
+          <div class="vstack gap-2" style="max-height: 420px; overflow-y: auto;">
+            {% for m in messages %}
+              <div class="p-3 rounded-3" style="background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="fw-semibold">{{ m.user.username }}</div>
+                  <div class="small muted">{{ m.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+                </div>
+                <div class="mt-2">{{ m.content }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="muted">Сообщений пока нет.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
